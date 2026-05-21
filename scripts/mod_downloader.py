@@ -207,12 +207,22 @@ def process_mod_url(url, downloaded_ids):
 
 
 if __name__ == "__main__":
-    # --- Add your mod links here ---
-    mod_links = [
-        "https://modrinth.com/mod/jei",
-    ]
+    import sys
 
-    downloaded_ids = set()  # tracks what's already been queued to avoid duplicates
+    # Accept URLs from command line args, e.g.:
+    #   python scripts/mod_downloader.py https://modrinth.com/mod/jei
+    # Or fall back to the hardcoded list if run with no args.
+    if len(sys.argv) > 1:
+        mod_links = sys.argv[1:]
+    else:
+        # --- Default list (edit this if running without args) ---
+        mod_links = []
+        if not mod_links:
+            print("Usage: python scripts/mod_downloader.py <url> [url2] ...")
+            print("Example: python scripts/mod_downloader.py https://modrinth.com/mod/jei")
+            sys.exit(0)
+
+    downloaded_ids = set()
 
     for link in mod_links:
         try:
