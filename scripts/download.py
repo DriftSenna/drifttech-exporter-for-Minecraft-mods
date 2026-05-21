@@ -38,7 +38,7 @@ def download_many(links, folder="downloads"):
 if __name__ == "__main__":
     # --- Edit your URLs here ---
     urls = [
-        "https://www.example.com/file.pdf",   # replace with your actual link(s)
+        "https://launcher-public-service-prod06.ol.epicgames.com/launcher/api/installer/download/EpicGamesLauncherInstaller.msi?productName=unrealEngine",
     ]
 
     # Download all files into the "downloads" folder
