@@ -179,9 +179,19 @@ router.get("/downloads/browse", (req, res) => {
           }
 
           // Remove / Keep buttons
-          actionEl.innerHTML =
-            '<button class="btn-sm btn-remove" onclick="removeFile(' + JSON.stringify(r.file) + ')">Remove</button>' +
-            '<button class="btn-sm btn-keep" onclick="keepFile(' + JSON.stringify(r.file) + ')">Keep Anyway</button>';
+          const removeBtn = document.createElement('button');
+          removeBtn.className = 'btn-sm btn-remove';
+          removeBtn.textContent = 'Remove';
+          removeBtn.addEventListener('click', () => removeFile(r.file));
+
+          const keepBtn = document.createElement('button');
+          keepBtn.className = 'btn-sm btn-keep';
+          keepBtn.textContent = 'Keep Anyway';
+          keepBtn.addEventListener('click', () => keepFile(r.file));
+
+          actionEl.innerHTML = '';
+          actionEl.appendChild(removeBtn);
+          actionEl.appendChild(keepBtn);
 
         } else if (r.warnings.length) {
           hasWarn = true;
