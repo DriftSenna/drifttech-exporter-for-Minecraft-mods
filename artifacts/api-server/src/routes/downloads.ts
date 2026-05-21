@@ -36,7 +36,7 @@ router.get("/downloads/scan", (req, res) => {
   res.json({ allSafe, results });
 });
 
-// Delete a file
+// Delete a file (and optionally find a safe replacement)
 router.delete("/downloads/:filename", (req, res) => {
   const filename = path.basename(req.params.filename);
   const filePath = path.join(downloadsDir, filename);
@@ -45,7 +45,29 @@ router.delete("/downloads/:filename", (req, res) => {
     return;
   }
   fs.unlinkSync(filePath);
-  res.json({ deleted: filename });
+
+  const replace = req.query["replace"] === "true";
+  if (!replace) {
+    res.json({ deleted: filename });
+    return;
+  }
+
+  // Run the replacement script
+  const replaceScript = "/home/runner/workspace/scripts/replace_mod.py";
+  const result = spawnSync("python3", [replaceScript, filename], {
+    encoding: "utf-8",
+    cwd: "/home/runner/workspace",
+    timeout: 60000,
+  });
+
+  let replacement: any = null;
+  try {
+    replacement = JSON.parse(result.stdout || "null");
+  } catch {
+    replacement = { error: "Replacement search failed" };
+  }
+
+  res.json({ deleted: filename, replacement });
 });
 
 // Browse page — interactive with live scan
@@ -101,6 +123,12 @@ router.get("/downloads/browse", (req, res) => {
     .banner.warn { background: #78350f; color: #fbbf24; }
     .removed-row { opacity: 0.35; text-decoration: line-through; }
     .toolbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+    .status-msg { font-size: 12px; display: block; margin-bottom: 4px; }
+    .status-msg.searching { color: #6b7280; animation: pulse 1.2s infinite; }
+    .status-msg.done { color: #4ade80; }
+    .status-msg.warn { color: #fbbf24; }
+    .status-msg.error { color: #f87171; }
+    .replacement-box { margin-top: 6px; padding: 8px 10px; background: #0d2a1a; border: 1px solid #14532d; border-radius: 6px; font-size: 12px; color: #d1fae5; line-height: 1.6; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
   </style>
 </head>
@@ -185,19 +213,62 @@ router.get("/downloads/browse", (req, res) => {
     }
 
     async function removeFile(filename) {
-      if (!confirm('Remove "' + filename + '" from your downloads?')) return;
-      const resp = await fetch(BASE + '/downloads/' + encodeURIComponent(filename), { method: 'DELETE' });
-      if (resp.ok) {
-        const key = encodeURIComponent(filename);
-        const row = document.getElementById('row-' + key);
-        if (row) row.classList.add('removed-row');
-        document.getElementById('action-' + key).innerHTML = '<span style="color:#4ade80;font-size:12px">Removed</span>';
+      if (!confirm('Remove "' + filename + '" and automatically find a safe replacement?')) return;
+      const key = encodeURIComponent(filename);
+      const actionEl = document.getElementById('action-' + key);
+      const row = document.getElementById('row-' + key);
+
+      // Step 1: show removing status
+      actionEl.innerHTML = '<span class="status-msg searching">🗑 Removing…</span>';
+
+      // Step 2: show searching status
+      setTimeout(() => {
+        actionEl.innerHTML = '<span class="status-msg searching">🔍 Searching for safe alternative…</span>';
+      }, 300);
+
+      const resp = await fetch(BASE + '/downloads/' + encodeURIComponent(filename) + '?replace=true', { method: 'DELETE' });
+      const data = await resp.json();
+
+      if (!resp.ok) {
+        actionEl.innerHTML = '<span class="status-msg error">❌ Failed to remove</span>';
+        return;
+      }
+
+      row.classList.add('removed-row');
+
+      const r = data.replacement;
+      if (!r) {
+        actionEl.innerHTML = '<span class="status-msg done">✔ Removed (no replacement found)</span>';
+      } else if (r.error) {
+        actionEl.innerHTML = '<span class="status-msg warn">✔ Removed — ' + r.error + '</span>';
+      } else {
+        const warnNote = r.warnings && r.warnings.length
+          ? ' <span style="color:#fbbf24">(' + r.warnings.length + ' warning' + (r.warnings.length > 1 ? 's' : '') + ')</span>'
+          : '';
+        actionEl.innerHTML =
+          '<span class="status-msg done">✔ Removed</span>' +
+          '<div class="replacement-box">' +
+            '✅ Replaced with: <strong>' + r.title + '</strong> v' + r.version + warnNote +
+            '<br><span style="color:#6b7280;font-size:11px">' + r.replaced_with + '</span>' +
+          '</div>';
+        // Add new row for replacement at top of table
+        const tbody = document.querySelector('tbody');
+        if (tbody) {
+          const newRow = document.createElement('tr');
+          newRow.id = 'row-' + encodeURIComponent(r.replaced_with);
+          newRow.innerHTML =
+            '<td><a href="' + BASE + '/downloads/' + encodeURIComponent(r.replaced_with) + '" download>' + r.replaced_with + '</a></td>' +
+            '<td>—</td>' +
+            '<td><span class="badge safe">SAFE</span></td>' +
+            '<td></td>';
+          tbody.insertBefore(newRow, tbody.firstChild);
+        }
       }
     }
 
     function keepFile(filename) {
       const key = encodeURIComponent(filename);
-      document.getElementById('action-' + key).innerHTML = '<span style="color:#fbbf24;font-size:12px">Kept — use caution</span>';
+      document.getElementById('action-' + key).innerHTML = '<span class="status-msg warn">⚠ Kept — use caution</span>';
     }
 
     runScan();
