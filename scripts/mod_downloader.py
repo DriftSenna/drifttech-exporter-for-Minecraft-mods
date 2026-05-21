@@ -68,6 +68,24 @@ def get_modrinth_primary_file(version):
     return version["files"][0]["url"], version["files"][0]["filename"]
 
 
+def find_forge_alternative(original_name, original_id, indent=""):
+    """Search Modrinth for the closest Forge 1.20.1 equivalent by name."""
+    import urllib.parse
+    query = urllib.parse.quote(original_name)
+    facets = urllib.parse.quote('[["categories:forge"],["versions:1.20.1"],["project_type:mod"]]')
+    url = f"https://api.modrinth.com/v2/search?query={query}&facets={facets}&limit=5"
+    results = fetch_json(url, headers=MODRINTH_HEADERS).get("hits", [])
+
+    # Filter out the original mod itself
+    results = [r for r in results if r["project_id"] != original_id]
+
+    if not results:
+        return None
+
+    best = results[0]
+    return best["project_id"], best["slug"], best["title"]
+
+
 def download_modrinth_mod(project_id_or_slug, downloaded_ids, indent=""):
     """Download a mod and all its required dependencies. Returns project_id or None."""
 
@@ -89,8 +107,16 @@ def download_modrinth_mod(project_id_or_slug, downloaded_ids, indent=""):
 
     versions = get_modrinth_versions(project_id)
     if not versions:
-        print(f"{indent}  WARNING: No Forge {GAME_VERSION} version found — skipping")
-        return project_id
+        print(f"{indent}  No Forge {GAME_VERSION} version found — searching for an alternative...")
+        alt = find_forge_alternative(name, project_id, indent)
+        if alt:
+            alt_id, alt_slug, alt_name = alt
+            print(f"{indent}  Found alternative: {alt_name} (Modrinth: {alt_slug})")
+            downloaded_ids.discard(project_id)  # allow the alt to be added instead
+            return download_modrinth_mod(alt_id, downloaded_ids, indent)
+        else:
+            print(f"{indent}  No Forge alternative found — skipping")
+            return project_id
 
     latest = versions[0]
     print(f"{indent}  Version: {latest['version_number']}")
