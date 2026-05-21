@@ -1,6 +1,8 @@
 """
 Given an unsafe mod filename, searches Modrinth for the closest safe Forge 1.20.1
 alternative, downloads it, scans it, and returns the result as JSON.
+
+All progress output goes to stderr so stdout stays clean for JSON.
 """
 
 import sys
@@ -19,11 +21,15 @@ from mod_downloader import (
 from scan_mods import scan_jar
 
 
+def log(*args):
+    """Print progress to stderr so stdout stays clean for JSON output."""
+    print(*args, file=sys.stderr, flush=True)
+
+
 def name_from_filename(filename):
     """Extract a human-readable search term from a jar filename."""
     name = filename
     name = re.sub(r'\.jar$', '', name, flags=re.IGNORECASE)
-    # Remove common version patterns
     name = re.sub(r'[-_](forge|fabric|neoforge|quilt)([-_]|$).*', '', name, flags=re.IGNORECASE)
     name = re.sub(r'[-_]v?\d+\.\d+.*', '', name)
     name = re.sub(r'[-_]mc\d.*', '', name, flags=re.IGNORECASE)
@@ -32,7 +38,7 @@ def name_from_filename(filename):
     return name
 
 
-def search_modrinth(query, exclude_slugs=None, limit=5):
+def search_modrinth(query, exclude_slugs=None, limit=8):
     exclude_slugs = exclude_slugs or set()
     q = urllib.parse.quote(query)
     facets = urllib.parse.quote(
@@ -49,29 +55,44 @@ def download_and_scan(project_id):
         return None
     latest = versions[0]
     dl_url, filename = get_modrinth_primary_file(latest)
-    save_file(dl_url, filename)
-    scan = scan_jar(os.path.join(DOWNLOADS_DIR, filename))
+
+    save_path = os.path.join(DOWNLOADS_DIR, filename)
+
+    # Redirect stdout to stderr during download so progress doesn't pollute JSON
+    real_stdout = sys.stdout
+    sys.stdout = sys.stderr
+    try:
+        save_file(dl_url, filename)
+    finally:
+        sys.stdout = real_stdout
+
+    scan = scan_jar(save_path)
     return {"filename": filename, "version": latest["version_number"], "scan": scan}
 
 
 def replace_mod(unsafe_filename, original_slug=None):
     search_term = name_from_filename(unsafe_filename)
-    exclude = {original_slug} if original_slug else set()
+    log(f"Searching for Forge {GAME_VERSION} alternative for '{search_term}'...")
 
-    hits = search_modrinth(search_term, exclude_slugs=exclude, limit=8)
+    exclude = {original_slug} if original_slug else set()
+    hits = search_modrinth(search_term, exclude_slugs=exclude)
+
     if not hits:
         return {"error": f"No Forge {GAME_VERSION} alternatives found for '{search_term}'"}
 
     for hit in hits:
+        log(f"Trying: {hit['title']} ({hit['slug']})...")
         result = download_and_scan(hit["project_id"])
         if result is None:
+            log(f"  No Forge {GAME_VERSION} version available — skipping")
             continue
         if not result["scan"]["safe"]:
-            # Remove the unsafe alternative we just downloaded
+            log(f"  Failed safety scan — removing and trying next...")
             bad_path = os.path.join(DOWNLOADS_DIR, result["filename"])
             if os.path.exists(bad_path):
                 os.remove(bad_path)
             continue
+        log(f"  Safe! Using {result['filename']}")
         return {
             "replaced_with": result["filename"],
             "version": result["version"],
