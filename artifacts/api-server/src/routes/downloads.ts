@@ -247,32 +247,18 @@ router.get("/downloads/browse", (req, res) => {
       row.classList.add('removed-row');
 
       const r = data.replacement;
-      if (!r) {
-        actionEl.innerHTML = '<span class="status-msg done">✔ Removed (no replacement found)</span>';
-      } else if (r.error) {
-        actionEl.innerHTML = '<span class="status-msg warn">✔ Removed — ' + r.error + '</span>';
+      if (!r || r.error) {
+        const msg = r?.error || 'No replacement found';
+        actionEl.innerHTML = '<span class="status-msg warn">✔ Removed — ' + msg + '</span>';
       } else {
         const warnNote = r.warnings && r.warnings.length
-          ? ' <span style="color:#fbbf24">(' + r.warnings.length + ' warning' + (r.warnings.length > 1 ? 's' : '') + ')</span>'
+          ? ' (' + r.warnings.length + ' warning' + (r.warnings.length > 1 ? 's' : '') + ')'
           : '';
-        actionEl.innerHTML =
-          '<span class="status-msg done">✔ Removed</span>' +
-          '<div class="replacement-box">' +
-            '✅ Replaced with: <strong>' + r.title + '</strong> v' + r.version + warnNote +
-            '<br><span style="color:#6b7280;font-size:11px">' + r.replaced_with + '</span>' +
-          '</div>';
-        // Add new row for replacement at top of table
-        const tbody = document.querySelector('tbody');
-        if (tbody) {
-          const newRow = document.createElement('tr');
-          newRow.id = 'row-' + encodeURIComponent(r.replaced_with);
-          newRow.innerHTML =
-            '<td><a href="' + BASE + '/downloads/' + encodeURIComponent(r.replaced_with) + '" download>' + r.replaced_with + '</a></td>' +
-            '<td>—</td>' +
-            '<td><span class="badge safe">SAFE</span></td>' +
-            '<td></td>';
-          tbody.insertBefore(newRow, tbody.firstChild);
-        }
+        // Show brief confirmation then reload so the full list updates with scan results
+        document.getElementById('banner').className = 'banner ok';
+        document.getElementById('banner').textContent =
+          '✅ Replaced with: ' + r.title + ' v' + r.version + warnNote + ' — refreshing list…';
+        setTimeout(() => location.reload(), 1800);
       }
     }
 
