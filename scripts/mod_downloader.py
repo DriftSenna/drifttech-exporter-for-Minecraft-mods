@@ -1,5 +1,4 @@
 import urllib.request
-import urllib.parse
 import json
 import os
 import re
@@ -7,8 +6,6 @@ import re
 GAME_VERSION = "1.20.1"
 LOADER = "forge"
 DOWNLOADS_DIR = "downloads"
-
-CURSEFORGE_API_KEY = os.environ.get("CURSEFORGE_API_KEY", "")
 
 
 class DownloadProgress:
@@ -56,53 +53,40 @@ def get_modrinth_download(url):
 
 
 def get_curseforge_download(url):
-    if not CURSEFORGE_API_KEY:
-        raise ValueError(
-            "CurseForge requires an API key.\n"
-            "  1. Go to https://console.curseforge.com and sign in\n"
-            "  2. Create an API key\n"
-            "  3. In the Shell, run:  export CURSEFORGE_API_KEY=your_key_here\n"
-            "  4. Then re-run this script"
-        )
-
     match = re.search(r'curseforge\.com/minecraft/mc-mods/([^/?#]+)', url)
     if not match:
         raise ValueError("Could not parse CurseForge URL. Expected: https://www.curseforge.com/minecraft/mc-mods/<name>")
     slug = match.group(1)
 
-    headers = {"x-api-key": CURSEFORGE_API_KEY, "Accept": "application/json"}
-
     print(f"Looking up '{slug}' on CurseForge...")
-    search_url = f"https://api.curseforge.com/v1/mods/search?gameId=432&slug={slug}"
-    result = fetch_json(search_url, headers=headers)
-
-    mods = result.get("data", [])
-    if not mods:
-        raise ValueError(f"Mod '{slug}' not found on CurseForge")
-
-    mod = mods[0]
-    mod_id = mod["id"]
-    print(f"Found: {mod['name']}")
-
-    # modLoaderType 1 = Forge
-    files_url = (
-        f"https://api.curseforge.com/v1/mods/{mod_id}/files"
-        f"?gameVersion={GAME_VERSION}&modLoaderType=1"
+    data = fetch_json(
+        f"https://api.cfwidget.com/minecraft/mc-mods/{slug}",
+        headers={"User-Agent": "Mozilla/5.0 (compatible; ModDownloader/1.0)"},
     )
-    files_result = fetch_json(files_url, headers=headers)
-    files = files_result.get("data", [])
+
+    # Filter files for the right game version and Forge loader
+    files = [
+        f for f in data.get("files", [])
+        if GAME_VERSION in f.get("versions", []) and "Forge" in f.get("versions", [])
+    ]
 
     if not files:
-        raise ValueError(f"No Forge {GAME_VERSION} files found for this mod")
+        raise ValueError(f"No Forge {GAME_VERSION} files found for '{slug}'")
 
-    files.sort(key=lambda f: f["fileDate"], reverse=True)
+    # Sort by upload date, newest first
+    files.sort(key=lambda f: f.get("uploaded_at", ""), reverse=True)
     newest = files[0]
 
-    download_url = newest.get("downloadUrl")
-    if not download_url:
-        raise ValueError("CurseForge did not provide a direct download URL for this file")
+    print(f"Found: {data['title']} — {newest['display']}")
 
-    return download_url, newest["fileName"]
+    # Build direct CDN download URL from file ID
+    file_id = str(newest["id"])
+    part1 = file_id[:-3]
+    part2 = file_id[-3:]
+    filename = newest["name"]
+    download_url = f"https://mediafilez.forgecdn.net/files/{part1}/{part2}/{filename}"
+
+    return download_url, filename
 
 
 def download_file(download_url, filename):
@@ -134,7 +118,7 @@ def process_mod_url(url):
 if __name__ == "__main__":
     # --- Add your mod links here ---
     mod_links = [
-        "https://modrinth.com/mod/sodium",   # example — replace with your link
+        "https://modrinth.com/mod/jei",
     ]
 
     for link in mod_links:
