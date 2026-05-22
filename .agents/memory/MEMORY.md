@@ -1,0 +1,1 @@
+- [Minecraft Mod Manager architecture](minecraft-mod-manager.md) — key decisions: async job polling, DB schema for auth/backups, Python env vars for version/loader config

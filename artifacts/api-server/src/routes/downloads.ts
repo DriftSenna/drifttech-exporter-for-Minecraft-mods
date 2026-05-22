@@ -1,12 +1,86 @@
 import { Router } from "express";
 import path from "path";
 import fs from "fs";
-import { spawnSync } from "child_process";
+import { spawnSync, spawn } from "child_process";
 import os from "os";
 
 const router = Router();
 const downloadsDir = "/home/runner/workspace/downloads";
 const scannerScript = "/home/runner/workspace/scripts/scan_mods.py";
+const downloaderScript = "/home/runner/workspace/scripts/mod_downloader.py";
+
+// In-memory async download job tracking
+interface DownloadJob {
+  status: "running" | "done" | "error";
+  lines: string[];
+  done: boolean;
+}
+const downloadJobs = new Map<string, DownloadJob>();
+
+// POST /api/download — start an async download, return jobId
+router.post("/download", (req, res) => {
+  const {
+    url,
+    mcVersion = "1.20.1",
+    loader = "forge",
+    type = "mod",
+  } = req.body as { url?: string; mcVersion?: string; loader?: string; type?: string };
+
+  if (!url) {
+    res.status(400).json({ error: "url required" });
+    return;
+  }
+
+  const jobId = Date.now().toString(36) + Math.random().toString(36).slice(2);
+  const job: DownloadJob = { status: "running", lines: [], done: false };
+  downloadJobs.set(jobId, job);
+
+  res.json({ jobId });
+
+  const child = spawn("python3", [downloaderScript, url], {
+    cwd: "/home/runner/workspace",
+    env: {
+      ...process.env,
+      GAME_VERSION: mcVersion,
+      MOD_LOADER: loader,
+      DOWNLOAD_TYPE: type,
+    },
+  });
+
+  const pushLine = (data: Buffer) => {
+    const j = downloadJobs.get(jobId);
+    if (!j) return;
+    data
+      .toString()
+      .split("\n")
+      .map((l) => l.trim())
+      .filter(Boolean)
+      .forEach((l) => j.lines.push(l));
+  };
+
+  child.stdout.on("data", pushLine);
+  child.stderr.on("data", pushLine);
+
+  child.on("close", (code) => {
+    const j = downloadJobs.get(jobId);
+    if (j) {
+      j.done = true;
+      j.status = code === 0 ? "done" : "error";
+    }
+    // Clean up after 5 minutes
+    setTimeout(() => downloadJobs.delete(jobId), 5 * 60 * 1000);
+  });
+});
+
+// GET /api/download/:jobId — poll job status
+router.get("/download/:jobId", (req, res) => {
+  const job = downloadJobs.get(req.params["jobId"] as string);
+  if (!job) {
+    res.status(404).json({ error: "Job not found" });
+    return;
+  }
+  res.json(job);
+});
 
 function getFiles() {
   if (!fs.existsSync(downloadsDir)) return [];

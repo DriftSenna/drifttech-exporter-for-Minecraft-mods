@@ -1,0 +1,27 @@
+kind = "mobile"
+previewPath = "/app/"
+title = "Minecraft Mod Manager"
+version = "1.0.0"
+id = "artifacts/app"
+router = "expo-domain"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+ensurePreviewReachable = "/status"
+name = "expo"
+paths = [ "/app/" ]
+localPort = 22580
+
+[services.development]
+run = "pnpm --filter @workspace/app run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/app", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/app", "run", "serve" ]
+
+[services.env]
+PORT = "22580"
+BASE_PATH = "/app/"
