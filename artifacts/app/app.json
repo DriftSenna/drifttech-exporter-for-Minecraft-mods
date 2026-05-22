@@ -47,6 +47,7 @@
         "projectId": "9742bed7-9a4c-4801-ba88-7bd4cfbcfdcd"
       }
     },
-    "owner": "drifttechenterprises"
+    "owner": "drifttechenterprises",
+    "jsEngine": "jsc"
   }
 }
