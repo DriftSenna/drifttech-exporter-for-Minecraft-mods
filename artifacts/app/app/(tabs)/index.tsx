@@ -278,7 +278,7 @@ function makeStyles(c: ReturnType<typeof useColors>) {
     chipActive: { backgroundColor: c.primaryDark, borderColor: c.primary },
     chipText: { fontSize: 13, color: c.mutedForeground, fontFamily: "Inter_500Medium" },
     chipTextActive: { color: c.primary },
-    pickerRow: { flexDirection: "row", gap: 12, marginBottom: 20 },
+    pickerRow: { flexDirection: "row", gap: 12, marginBottom: 20, zIndex: 100 },
     selectorWrap: { flex: 1, zIndex: 10 },
     selectorLabel: { fontSize: 11, color: c.mutedForeground, fontFamily: "Inter_500Medium", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 },
     selectorBtn: {
