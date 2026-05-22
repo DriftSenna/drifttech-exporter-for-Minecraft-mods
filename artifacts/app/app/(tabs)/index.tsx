@@ -104,7 +104,7 @@ export default function DownloadScreen() {
         showsVerticalScrollIndicator={false}
       >
         {/* Header */}
-        <Text style={s.heading}>Mod Manager</Text>
+        <Text style={s.heading}>DriftTech Exporter</Text>
         <Text style={s.sub}>Download mods, resource packs & shaders</Text>
 
         {/* Type selector */}
