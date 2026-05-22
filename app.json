@@ -6,9 +6,6 @@
     "android": {
       "package": "com.drifttech.exporter"
     },
-    "extra": {
-      "eas": 
-      }
     }
   }
 }
