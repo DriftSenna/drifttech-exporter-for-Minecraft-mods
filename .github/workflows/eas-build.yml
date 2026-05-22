@@ -29,5 +29,4 @@ jobs:
           token: ${{ secrets.EXPO_TOKEN }}
 
       - name: Run EAS build
-        working-directory: artifacts/app
         run: eas build --platform android --profile preview --non-interactive
