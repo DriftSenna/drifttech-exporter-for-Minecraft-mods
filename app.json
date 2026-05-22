@@ -5,7 +5,6 @@
 
     "android": {
       "package": "com.drifttech.exporter"
-    },
     }
   }
 }
