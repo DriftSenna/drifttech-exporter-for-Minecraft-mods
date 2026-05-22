@@ -40,14 +40,13 @@
     ],
     "experiments": {
       "typedRoutes": true,
-      "reactCompiler": true
+      "reactCompiler": false
     },
     "extra": {
       "eas": {
         "projectId": "9742bed7-9a4c-4801-ba88-7bd4cfbcfdcd"
       }
     },
-    "owner": "drifttechenterprises",
-    "jsEngine": "jsc"
+    "owner": "drifttechenterprises"
   }
 }
