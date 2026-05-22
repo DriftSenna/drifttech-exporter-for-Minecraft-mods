@@ -2,9 +2,13 @@
   "expo": {
     "name": "DriftTech Exporter",
     "slug": "drifttechexporter",
-
     "android": {
       "package": "com.drifttech.exporter"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "d89ca127-1a08-413e-9348-27b56f449373"
+      }
     }
   }
 }
