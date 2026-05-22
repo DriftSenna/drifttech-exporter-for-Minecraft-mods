@@ -36,3 +36,6 @@ externalPort = 3000
 
 [objectStorage]
 defaultBucketID = "replit-objstore-05e464b6-e319-486e-85f4-8cf30afb8439"
+
+[nix]
+packages = ["nano"]
