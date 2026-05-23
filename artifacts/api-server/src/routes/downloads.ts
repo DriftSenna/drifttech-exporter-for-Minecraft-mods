@@ -8,6 +8,7 @@ const router = Router();
 const downloadsDir = "/home/runner/workspace/downloads";
 const scannerScript = "/home/runner/workspace/scripts/scan_mods.py";
 const downloaderScript = "/home/runner/workspace/scripts/mod_downloader.py";
+const INDEX_FILE = path.join(downloadsDir, ".index.json");
 
 // In-memory async download job tracking
 interface DownloadJob {
@@ -84,7 +85,7 @@ router.get("/download/:jobId", (req, res) => {
 
 function getFiles() {
   if (!fs.existsSync(downloadsDir)) return [];
-  return fs.readdirSync(downloadsDir).map((name) => {
+  return fs.readdirSync(downloadsDir).filter(f => !f.startsWith(".")).map((name) => {
     const stat = fs.statSync(path.join(downloadsDir, name));
     return { name, size: stat.size };
   });
@@ -110,38 +111,76 @@ router.get("/downloads/scan", (req, res) => {
   res.json({ allSafe, results });
 });
 
-// Delete a file (and optionally find a safe replacement)
+// DELETE /api/downloads/:filename — delete a file and remove from index
 router.delete("/downloads/:filename", (req, res) => {
   const filename = path.basename(req.params.filename);
+  
+  // Security: prevent directory traversal
+  if (filename.includes("..") || filename.includes("/") || filename.includes("\\")) {
+    res.status(400).json({ error: "Invalid filename" });
+    return;
+  }
+
   const filePath = path.join(downloadsDir, filename);
-  if (!fs.existsSync(filePath)) {
-    res.status(404).json({ error: "File not found" });
-    return;
-  }
-  fs.unlinkSync(filePath);
-
-  const replace = req.query["replace"] === "true";
-  if (!replace) {
-    res.json({ deleted: filename });
+  
+  // Verify the file is actually in the downloads directory
+  const realPath = path.resolve(filePath);
+  const realDownloadsDir = path.resolve(downloadsDir);
+  if (!realPath.startsWith(realDownloadsDir)) {
+    res.status(403).json({ error: "Access denied" });
     return;
   }
 
-  // Run the replacement script
-  const replaceScript = "/home/runner/workspace/scripts/replace_mod.py";
-  const result = spawnSync("python3", [replaceScript, filename], {
-    encoding: "utf-8",
-    cwd: "/home/runner/workspace",
-    timeout: 60000,
-  });
-
-  let replacement: any = null;
   try {
-    replacement = JSON.parse(result.stdout || "null");
-  } catch {
-    replacement = { error: "Replacement search failed" };
-  }
+    if (!fs.existsSync(filePath)) {
+      res.status(404).json({ error: "File not found" });
+      return;
+    }
 
-  res.json({ deleted: filename, replacement });
+    // Delete the file
+    fs.unlinkSync(filePath);
+
+    // Remove from index
+    try {
+      if (fs.existsSync(INDEX_FILE)) {
+        const index = JSON.parse(fs.readFileSync(INDEX_FILE, "utf-8"));
+        // Find and remove any slug pointing to this filename
+        for (const [slug, file] of Object.entries(index)) {
+          if (file === filename) {
+            delete index[slug];
+          }
+        }
+        fs.writeFileSync(INDEX_FILE, JSON.stringify(index, null, 2));
+      }
+    } catch (e) {
+      // Ignore index update errors
+    }
+
+    const replace = req.query["replace"] === "true";
+    if (!replace) {
+      res.json({ deleted: filename });
+      return;
+    }
+
+    // Run the replacement script
+    const replaceScript = "/home/runner/workspace/scripts/replace_mod.py";
+    const result = spawnSync("python3", [replaceScript, filename], {
+      encoding: "utf-8",
+      cwd: "/home/runner/workspace",
+      timeout: 60000,
+    });
+
+    let replacement: any = null;
+    try {
+      replacement = JSON.parse(result.stdout || "null");
+    } catch {
+      replacement = { error: "Replacement search failed" };
+    }
+
+    res.json({ deleted: filename, replacement });
+  } catch (error: any) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Browse page — interactive with live scan
@@ -179,8 +218,8 @@ router.get("/downloads/browse", (req, res) => {
     .btn:hover { background: #1d4ed8; }
     .btn:disabled { background: #374151; color: #6b7280; cursor: not-allowed; }
     .btn-sm { padding: 4px 12px; font-size: 12px; border-radius: 5px; border: none; cursor: pointer; margin-right: 6px; }
-    .btn-remove { background: #7f1d1d; color: #f87171; }
-    .btn-remove:hover { background: #991b1b; }
+    .btn-delete { background: #7f1d1d; color: #f87171; }
+    .btn-delete:hover { background: #991b1b; }
     .btn-keep { background: #1e3a5f; color: #93c5fd; }
     .btn-keep:hover { background: #1e40af; }
     .badge { display: inline-block; padding: 3px 9px; border-radius: 4px; font-size: 12px; font-weight: bold; }
@@ -202,7 +241,6 @@ router.get("/downloads/browse", (req, res) => {
     .status-msg.done { color: #4ade80; }
     .status-msg.warn { color: #fbbf24; }
     .status-msg.error { color: #f87171; }
-    .replacement-box { margin-top: 6px; padding: 8px 10px; background: #0d2a1a; border: 1px solid #14532d; border-radius: 6px; font-size: 12px; color: #d1fae5; line-height: 1.6; }
     @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
   </style>
 </head>
@@ -218,10 +256,10 @@ router.get("/downloads/browse", (req, res) => {
 
   ${files.length === 0
     ? '<p style="color:#555;text-align:center;margin-top:40px">No files yet.</p>'
-    : `<table>
+    : \`<table>
       <thead><tr><th>File</th><th>Size</th><th>Safety</th><th>Action</th></tr></thead>
-      <tbody>${fileRows}</tbody>
-    </table>`
+      <tbody>\${fileRows}</tbody>
+    </table>\`
   }
 
   <script>
@@ -252,11 +290,11 @@ router.get("/downloads/browse", (req, res) => {
             issuesEl.innerHTML += r.warnings.map(w => '<div class="warn-msg">⚡ ' + w + '</div>').join('');
           }
 
-          // Remove / Keep buttons
-          const removeBtn = document.createElement('button');
-          removeBtn.className = 'btn-sm btn-remove';
-          removeBtn.textContent = 'Remove';
-          removeBtn.addEventListener('click', () => removeFile(r.file));
+          // Delete / Keep buttons
+          const deleteBtn = document.createElement('button');
+          deleteBtn.className = 'btn-sm btn-delete';
+          deleteBtn.textContent = 'Delete';
+          deleteBtn.addEventListener('click', () => deleteFile(r.file));
 
           const keepBtn = document.createElement('button');
           keepBtn.className = 'btn-sm btn-keep';
@@ -264,7 +302,7 @@ router.get("/downloads/browse", (req, res) => {
           keepBtn.addEventListener('click', () => keepFile(r.file));
 
           actionEl.innerHTML = '';
-          actionEl.appendChild(removeBtn);
+          actionEl.appendChild(deleteBtn);
           actionEl.appendChild(keepBtn);
 
         } else if (r.warnings.length) {
@@ -296,44 +334,25 @@ router.get("/downloads/browse", (req, res) => {
       }
     }
 
-    async function removeFile(filename) {
-      if (!confirm('Remove "' + filename + '" and automatically find a safe replacement?')) return;
+    async function deleteFile(filename) {
+      if (!confirm('Delete "' + filename + '"?')) return;
       const key = encodeURIComponent(filename);
       const actionEl = document.getElementById('action-' + key);
       const row = document.getElementById('row-' + key);
 
-      // Step 1: show removing status
-      actionEl.innerHTML = '<span class="status-msg searching">🗑 Removing…</span>';
+      actionEl.innerHTML = '<span class="status-msg searching">🗑 Deleting…</span>';
 
-      // Step 2: show searching status
-      setTimeout(() => {
-        actionEl.innerHTML = '<span class="status-msg searching">🔍 Searching for safe alternative…</span>';
-      }, 300);
-
-      const resp = await fetch(BASE + '/downloads/' + encodeURIComponent(filename) + '?replace=true', { method: 'DELETE' });
+      const resp = await fetch(BASE + '/downloads/' + key, { method: 'DELETE' });
       const data = await resp.json();
 
       if (!resp.ok) {
-        actionEl.innerHTML = '<span class="status-msg error">❌ Failed to remove</span>';
+        actionEl.innerHTML = '<span class="status-msg error">❌ Failed to delete</span>';
         return;
       }
 
       row.classList.add('removed-row');
-
-      const r = data.replacement;
-      if (!r || r.error) {
-        const msg = r?.error || 'No replacement found';
-        actionEl.innerHTML = '<span class="status-msg warn">✔ Removed — ' + msg + '</span>';
-      } else {
-        const warnNote = r.warnings && r.warnings.length
-          ? ' (' + r.warnings.length + ' warning' + (r.warnings.length > 1 ? 's' : '') + ')'
-          : '';
-        // Show brief confirmation then reload so the full list updates with scan results
-        document.getElementById('banner').className = 'banner ok';
-        document.getElementById('banner').textContent =
-          '✅ Replaced with: ' + r.title + ' v' + r.version + warnNote + ' — refreshing list…';
-        setTimeout(() => location.reload(), 1800);
-      }
+      actionEl.innerHTML = '<span class="status-msg done">✓ Deleted</span>';
+      setTimeout(() => location.reload(), 800);
     }
 
     function keepFile(filename) {
@@ -344,7 +363,7 @@ router.get("/downloads/browse", (req, res) => {
     runScan();
   </script>
 </body>
-</html>`;
+</html>\`;
 
   res.setHeader("Content-Type", "text/html");
   res.send(html);
