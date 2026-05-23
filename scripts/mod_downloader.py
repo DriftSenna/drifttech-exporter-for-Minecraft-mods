@@ -95,11 +95,12 @@ def save_file(download_url, filename, slug=None, indent=""):
 # --------------------------------------------------------------------------- #
 
 def get_modrinth_versions(project_id_or_slug, project_type=None):
+    """Get versions for a project. Shaders & resource packs are loader-agnostic."""
     loaders_param = ""
     if project_type == "resourcepack":
-        loaders_param = ""
+        loaders_param = ""  # No loader filter for resource packs
     elif project_type == "shader":
-        loaders_param = "&loaders=%5B%22iris%22%2C%22optifine%22%5D"
+        loaders_param = ""  # No loader filter for shaders
     else:
         loaders_param = f"&loaders=%5B%22{LOADER}%22%5D"
 
@@ -131,8 +132,8 @@ def search_modrinth(name, project_type="mod"):
     return fetch_json(url, headers=MODRINTH_HEADERS).get("hits", [])
 
 
-def find_forge_alternative(original_name, original_id, indent="", project_type="mod"):
-    """Search Modrinth for the closest equivalent by name."""
+def find_alternative(original_name, original_id, indent="", project_type="mod"):
+    """Search Modrinth for the closest equivalent by name (respects project type)."""
     results = search_modrinth(original_name, project_type)
     results = [r for r in results if r.get("project_id") != original_id]
     if not results:
@@ -161,16 +162,18 @@ def download_modrinth_mod(project_id_or_slug, downloaded_ids, indent="", project
 
     versions = get_modrinth_versions(project_id, project_type=pt)
     if not versions:
-        print(f"{indent}  No {LOADER}/{GAME_VERSION} version found — searching for an alternative...")
-        alt = find_forge_alternative(name, project_id, indent, project_type=pt)
-        if alt:
-            alt_id, alt_slug, alt_name = alt
-            print(f"{indent}  Found alternative: {alt_name} (Modrinth: {alt_slug})")
-            downloaded_ids.discard(project_id)
-            return download_modrinth_mod(alt_id, downloaded_ids, indent, project_type=pt)
-        else:
-            print(f"{indent}  No compatible alternative found — skipping")
-            return project_id
+        if pt == "mod":
+            # Only search for alternatives for mods
+            print(f"{indent}  No {LOADER}/{GAME_VERSION} version found — searching for an alternative...")
+            alt = find_alternative(name, project_id, indent, project_type=pt)
+            if alt:
+                alt_id, alt_slug, alt_name = alt
+                print(f"{indent}  Found alternative: {alt_name} (Modrinth: {alt_slug})")
+                downloaded_ids.discard(project_id)
+                return download_modrinth_mod(alt_id, downloaded_ids, indent, project_type=pt)
+        # For shaders/resource packs, just skip if no version found
+        print(f"{indent}  No compatible version found — skipping")
+        return project_id
 
     latest = versions[0]
     print(f"{indent}  Version: {latest['version_number']}")
@@ -204,7 +207,7 @@ def get_curseforge_metadata(slug):
 
 def find_modrinth_equivalent(name):
     """Try to find the same mod on Modrinth."""
-    results = search_modrinth(name, project_type=DOWNLOAD_TYPE)
+    results = search_modrinth(name, project_type="mod")
     if not results:
         return None
     for r in results:
@@ -239,27 +242,8 @@ def download_curseforge_mod(slug, downloaded_ids, indent=""):
         download_modrinth_mod(alt_id, downloaded_ids, indent)
         return
 
-    print(f"{indent}  Not found on Modrinth — falling back to CurseForge CDN")
-
-    files = [
-        f for f in data.get("files", [])
-        if GAME_VERSION in f.get("versions", []) and "Forge" in f.get("versions", [])
-    ]
-    if not files:
-        print(f"{indent}  No Forge {GAME_VERSION} files on CurseForge either — skipping")
-        return
-
-    files.sort(key=lambda f: f.get("uploaded_at", ""), reverse=True)
-    newest = files[0]
-    file_id = str(newest["id"])
-    part1, part2 = file_id[:-3], file_id[-3:]
-    filename = newest["name"]
-    download_url = f"https://mediafilez.forgecdn.net/files/{part1}/{part2}/{filename}"
-
-    print(f"{indent}Mod: {name} (CurseForge: {slug})")
-    print(f"{indent}  File: {filename}")
-    save_file(download_url, filename, slug=f"cf_{slug}", indent=indent)
-    print(f"{indent}  Note: CurseForge dependency resolution requires a manual check.")
+    print(f"{indent}  Not found on Modrinth — skipping (CurseForge-only mods not supported)")
+    return
 
 
 # --------------------------------------------------------------------------- #
