@@ -194,15 +194,30 @@ def download_modrinth_mod(project_id_or_slug, downloaded_ids, indent="", project
 
 
 # --------------------------------------------------------------------------- #
-# CurseForge (via cfwidget, with Modrinth fallback)
+# CurseForge (with metadata scanning for dependencies)
 # --------------------------------------------------------------------------- #
 
 def get_curseforge_metadata(slug):
+    """Fetch CurseForge metadata."""
     data = fetch_json(
         f"https://api.cfwidget.com/minecraft/mc-mods/{slug}",
         headers=CFWIDGET_HEADERS,
     )
     return data
+
+
+def get_curseforge_dependencies(cf_data):
+    """Extract required dependencies from CurseForge metadata."""
+    deps = []
+    for version in cf_data.get("files", []):
+        # Look for the first file compatible with our game version and loader
+        if GAME_VERSION in version.get("versions", []) and "Forge" in version.get("versions", []):
+            # Get dependencies from this version's metadata
+            for dep in version.get("dependencies", []):
+                if dep.get("type") == "required" and dep.get("id"):
+                    deps.append(dep["id"])
+            break
+    return deps
 
 
 def find_modrinth_equivalent(name):
@@ -219,6 +234,7 @@ def find_modrinth_equivalent(name):
 
 
 def download_curseforge_mod(slug, downloaded_ids, indent=""):
+    """Download a CurseForge mod with dependency resolution."""
     key = f"cf:{slug}"
     if key in downloaded_ids:
         print(f"{indent}Skipping '{slug}' (already queued)")
@@ -226,14 +242,15 @@ def download_curseforge_mod(slug, downloaded_ids, indent=""):
     downloaded_ids.add(key)
 
     try:
-        data = get_curseforge_metadata(slug)
-        name = data.get("title", slug)
-    except Exception:
-        name = slug
-        data = {}
+        cf_data = get_curseforge_metadata(slug)
+        name = cf_data.get("title", slug)
+    except Exception as e:
+        print(f"{indent}  Error fetching CurseForge metadata: {e}")
+        return
 
     print(f"{indent}CurseForge: {name} ({slug}) — checking Modrinth first...")
 
+    # Try Modrinth first
     modrinth_alt = find_modrinth_equivalent(name)
     if modrinth_alt:
         alt_id, alt_slug, alt_name = modrinth_alt
@@ -242,8 +259,44 @@ def download_curseforge_mod(slug, downloaded_ids, indent=""):
         download_modrinth_mod(alt_id, downloaded_ids, indent)
         return
 
-    print(f"{indent}  Not found on Modrinth — skipping (CurseForge-only mods not supported)")
-    return
+    print(f"{indent}  Not found on Modrinth — downloading from CurseForge CDN")
+
+    # Find compatible file
+    files = [
+        f for f in cf_data.get("files", [])
+        if GAME_VERSION in f.get("versions", []) and "Forge" in f.get("versions", [])
+    ]
+    if not files:
+        print(f"{indent}  No Forge {GAME_VERSION} files on CurseForge — skipping")
+        return
+
+    files.sort(key=lambda f: f.get("uploaded_at", ""), reverse=True)
+    newest = files[0]
+    file_id = str(newest["id"])
+    part1, part2 = file_id[:-3], file_id[-3:]
+    filename = newest["name"]
+    download_url = f"https://mediafilez.forgecdn.net/files/{part1}/{part2}/{filename}"
+
+    print(f"{indent}Mod: {name} (CurseForge: {slug})")
+    print(f"{indent}  File: {filename}")
+    save_file(download_url, filename, slug=f"cf_{slug}", indent=indent)
+
+    # Process dependencies from CurseForge metadata
+    deps = get_curseforge_dependencies(cf_data)
+    if deps:
+        print(f"{indent}  Dependencies ({len(deps)}) — Searching on Modrinth:")
+        for dep_id in deps:
+            try:
+                # Try to find this dependency on Modrinth by ID
+                dep_project = fetch_json(
+                    f"https://api.modrinth.com/v2/project/{dep_id}",
+                    headers=MODRINTH_HEADERS,
+                )
+                dep_slug = dep_project["slug"]
+                print(f"{indent}    Found: {dep_project['title']} ({dep_slug})")
+                download_modrinth_mod(dep_slug, downloaded_ids, indent=indent + "      ")
+            except Exception as e:
+                print(f"{indent}    Could not find dependency {dep_id}: {e}")
 
 
 # --------------------------------------------------------------------------- #
