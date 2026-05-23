@@ -1,14 +1,51 @@
 {
   "expo": {
     "name": "DriftTech Exporter",
-    "slug": "drifttechexporter",
+    "slug": "app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "drifttechexporter",
+    "userInterfaceStyle": "dark",
+    "newArchEnabled": true,
+    "splash": {
+      "image": "./assets/images/icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0e0e10"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.drifttech.exporter"
+    },
     "android": {
-      "package": "com.drifttech.exporter"
+      "package": "com.drifttech.exporter",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/icon.png",
+        "backgroundColor": "#0e0e10"
+      },
+      "permissions": []
+    },
+    "web": {
+      "favicon": "./assets/images/icon.png"
+    },
+    "plugins": [
+      [
+        "expo-router",
+        {
+          "origin": "https://replit.com/"
+        }
+      ],
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "experiments": {
+      "typedRoutes": true
     },
     "extra": {
       "eas": {
-        "projectId": "d89ca127-1a08-413e-9348-27b56f449373"
+        "projectId": "9742bed7-9a4c-4801-ba88-7bd4cfbcfdcd"
       }
-    }
+    },
+    "owner": "drifttechenterprises"
   }
 }
