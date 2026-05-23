@@ -248,26 +248,24 @@ def download_curseforge_mod(slug, downloaded_ids, indent=""):
         print(f"{indent}  Error fetching CurseForge metadata: {e}")
         return
 
-    print(f"{indent}CurseForge: {name} ({slug}) — checking Modrinth first...")
+    print(f"{indent}CurseForge: {name} ({slug})")
 
-    # Try Modrinth first
-    modrinth_alt = find_modrinth_equivalent(name)
-    if modrinth_alt:
-        alt_id, alt_slug, alt_name = modrinth_alt
-        print(f"{indent}  Found on Modrinth: {alt_name} ({alt_slug}) — using that instead")
-        downloaded_ids.discard(key)
-        download_modrinth_mod(alt_id, downloaded_ids, indent)
-        return
-
-    print(f"{indent}  Not found on Modrinth — downloading from CurseForge CDN")
-
-    # Find compatible file
+    # Find compatible file on CurseForge
     files = [
         f for f in cf_data.get("files", [])
         if GAME_VERSION in f.get("versions", []) and "Forge" in f.get("versions", [])
     ]
+    
     if not files:
-        print(f"{indent}  No Forge {GAME_VERSION} files on CurseForge — skipping")
+        print(f"{indent}  No Forge {GAME_VERSION} files on CurseForge — searching Modrinth instead...")
+        modrinth_alt = find_modrinth_equivalent(name)
+        if modrinth_alt:
+            alt_id, alt_slug, alt_name = modrinth_alt
+            print(f"{indent}  Found on Modrinth: {alt_name} ({alt_slug}) — using that instead")
+            downloaded_ids.discard(key)
+            download_modrinth_mod(alt_id, downloaded_ids, indent)
+        else:
+            print(f"{indent}  Not found on Modrinth either — skipping")
         return
 
     files.sort(key=lambda f: f.get("uploaded_at", ""), reverse=True)
@@ -277,7 +275,6 @@ def download_curseforge_mod(slug, downloaded_ids, indent=""):
     filename = newest["name"]
     download_url = f"https://mediafilez.forgecdn.net/files/{part1}/{part2}/{filename}"
 
-    print(f"{indent}Mod: {name} (CurseForge: {slug})")
     print(f"{indent}  File: {filename}")
     save_file(download_url, filename, slug=f"cf_{slug}", indent=indent)
 
@@ -320,7 +317,7 @@ def process_mod_url(url, downloaded_ids):
     print(f"\nProcessing: {url}")
 
     if "modrinth.com" in url:
-        # Modrinth supports mods, resource packs, shaders
+        # Modrinth URL — scan Modrinth first
         match = re.search(r'modrinth\.com/(?:mod|plugin|modpack|resourcepack|shader|datapack)/([^/?#&]+)', url)
         if not match:
             raise ValueError("Could not parse Modrinth URL")
@@ -333,6 +330,7 @@ def process_mod_url(url, downloaded_ids):
             download_modrinth_mod(slug, downloaded_ids)
 
     elif "curseforge.com" in url:
+        # CurseForge URL — scan CurseForge first, fallback to Modrinth
         match = re.search(r'curseforge\.com/minecraft/mc-mods/([^/?#&]+)', url)
         if not match:
             raise ValueError("Could not parse CurseForge URL")
