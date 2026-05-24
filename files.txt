@@ -1,3 +1,0 @@
-./scripts/package.json
-./package.json
-./app.json
