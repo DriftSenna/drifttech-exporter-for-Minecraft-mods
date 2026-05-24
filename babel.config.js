@@ -3,16 +3,8 @@ module.exports = function(api) {
 
   return {
     presets: ['babel-preset-expo'],
-    assumptions: {
-      setPublicClassFields: true,
-      privateFieldsAsProperties: true,
-    },
     plugins: [
-      ['@babel/plugin-proposal-class-properties', { loose: true }],
-      ['@babel/plugin-proposal-private-methods', { loose: true }],
-      ['@babel/plugin-proposal-private-property-in-object', { loose: true }],
-      '@babel/plugin-transform-class-static-block',
-      'react-native-reanimated/plugin',
+      'react-native-reanimated/plugin'
     ],
   };
 };
