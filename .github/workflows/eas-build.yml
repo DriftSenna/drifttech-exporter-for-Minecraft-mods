@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd artifacts/app
+          cd .
           pnpm install --frozen-lockfile
 
       - name: Build APK with EAS
@@ -33,5 +33,5 @@ jobs:
 
       - name: Run EAS build
         run: |
-          cd artifacts/app
+          cd .
           eas build --platform android --profile preview --non-interactive
