@@ -134,6 +134,9 @@ importers:
       '@babel/plugin-transform-class-properties':
         specifier: ^7.28.6
         version: 7.28.6(@babel/core@7.29.0)
+      '@babel/plugin-transform-class-static-block':
+        specifier: ^7.28.6
+        version: 7.28.6(@babel/core@7.29.0)
       '@babel/plugin-transform-private-methods':
         specifier: ^7.28.6
         version: 7.28.6(@babel/core@7.29.0)
