@@ -1,0 +1,292 @@
+  │ ├── hermes-parser 0.29.1
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  ├─┬ expo-modules-autolinking 3.0.25
+  ├─┬ expo-modules-core 3.0.30
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+react-native-worklets 0.8.3
+│ │ ├── hermes-parser 0.33.3
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.32.0
+│ │ ├── hermes-parser 0.32.0
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│ ├─┬ hermes-parser 0.29.1
+│ │ └── hermes-estree 0.29.1
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ @react-navigation/bottom-tabs 7.16.1
+│ │ ├── @react-navigation/elements 2.9.18
+│ │ ├── @react-navigation/native 7.2.4 peer
+│ │ ├── react-native-safe-area-context 5.6.2 peer
+│ │ ├── react-native-screens 4.16.0 peer
+│ ├─┬ @react-navigation/native 7.2.4
+│ │ ├── @react-navigation/core 7.17.4
+│ ├─┬ @react-navigation/native-stack 7.15.1
+│ │ ├── @react-navigation/elements 2.9.18
+│ │ ├── @react-navigation/native 7.2.4 peer
+│ │ ├── react-native-safe-area-context 5.6.2 peer
+│ │ ├── react-native-screens 4.16.0 peer
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ react-native-gesture-handler 2.28.0 peer
+│ ├─┬ react-native-reanimated 4.1.7 peer
+│ │ ├── react-native-worklets 0.8.3 peer
+│ ├─┬ react-native-safe-area-context 5.6.2 peer
+│ ├─┬ react-native-screens 4.16.0 peer
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.33.3
+│ ├─┬ hermes-parser 0.33.3
+│ │ └── hermes-estree 0.33.3
+│ │ ├── hermes-parser 0.35.0
+│   ├── hermes-parser 0.33.3
+├─┬ babel-plugin-syntax-hermes-parser 0.33.3
+│ └─┬ hermes-parser 0.33.3
+│   └── hermes-estree 0.33.3
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── @react-navigation/bottom-tabs 7.16.1
+│ │ ├── @react-navigation/native 7.2.4
+│ │ ├── @react-navigation/native-stack 7.15.1
+│ │ ├── react-native-gesture-handler 2.28.0 peer
+│ │ ├── react-native-reanimated 4.1.7 peer
+│ │ ├── react-native-safe-area-context 5.6.2 peer
+│ │ ├── react-native-screens 4.16.0 peer
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.32.0
+│ │ ├── hermes-parser 0.32.0
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│ ├─┬ hermes-parser 0.29.1
+│ │ └── hermes-estree 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+├─┬ expo-modules-autolinking 3.0.25
+├─┬ expo-modules-core 3.0.30
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  ├─┬ expo-modules-autolinking 3.0.25
+  ├─┬ expo-modules-core 3.0.30
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+    ├── expo-modules-autolinking 3.0.25
+    ├── expo-modules-core 3.0.30
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  ├─┬ expo-modules-autolinking 3.0.25
+  ├─┬ expo-modules-core 3.0.30
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+├─┬ @react-navigation/bottom-tabs 7.16.1
+│ ├─┬ @react-navigation/elements 2.9.18
+│ │ ├── @react-navigation/native 7.2.4 peer
+│ │ ├── react-native-safe-area-context 5.6.2 peer
+│ ├─┬ @react-navigation/native 7.2.4 peer
+│ │ ├── @react-navigation/core 7.17.4
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ react-native-safe-area-context 5.6.2 peer
+│ ├─┬ react-native-screens 4.16.0 peer
+├─┬ @react-navigation/native 7.2.4
+│ ├─┬ @react-navigation/core 7.17.4
+│ │ ├── @react-navigation/routers 7.5.5
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+├─┬ @react-navigation/native-stack 7.15.1
+│ ├─┬ @react-navigation/elements 2.9.18
+│ │ ├── @react-navigation/native 7.2.4 peer
+│ │ ├── react-native-safe-area-context 5.6.2 peer
+│ ├─┬ @react-navigation/native 7.2.4 peer
+│ │ ├── @react-navigation/core 7.17.4
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ react-native-safe-area-context 5.6.2 peer
+│ ├─┬ react-native-screens 4.16.0 peer
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+├─┬ react-native-gesture-handler 2.28.0 peer
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+├─┬ react-native-reanimated 4.1.7 peer
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ react-native-worklets 0.8.3 peer
+├─┬ react-native-safe-area-context 5.6.2 peer
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+├─┬ react-native-screens 4.16.0 peer
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── expo-modules-autolinking 3.0.25
+│ │ ├── expo-modules-core 3.0.30
+  │ ├── hermes-parser 0.29.1
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  ├─┬ expo-modules-autolinking 3.0.25
+  ├─┬ expo-modules-core 3.0.30
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+    ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ ├─┬ expo-modules-autolinking 3.0.25
+│ ├─┬ expo-modules-core 3.0.30
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+│ ├─┬ hermes-parser 0.29.1
+│ │ └── hermes-estree 0.29.1
+│ │ ├── hermes-parser 0.35.0
+├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ └─┬ hermes-parser 0.29.1
+│   └── hermes-estree 0.29.1
+react-native-gesture-handler 2.28.0
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+└─┬ react-native-reanimated 4.1.7 peer
+  │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+  ├─┬ react-native-worklets 0.8.3 peer
+react-native-reanimated 4.1.7
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+├─┬ react-native-worklets 0.8.3 peer
+│ │ ├── babel-plugin-syntax-hermes-parser 0.29.1
+react-native-safe-area-context 5.6.2
+  │ ├── hermes-parser 0.29.1
+  ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+  │ └── hermes-parser 0.29.1
+react-native-screens 4.16.0
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
+│   ├── babel-plugin-syntax-hermes-parser 0.29.1
+│ │ ├── hermes-parser 0.29.1
+│ ├─┬ babel-plugin-syntax-hermes-parser 0.29.1
+│ │ └── hermes-parser 0.29.1
